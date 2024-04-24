@@ -1,0 +1,79 @@
+
+{% load static %}<!DOCTYPE html>
+<html>
+  <head>
+    <title>Login</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+      integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+      crossorigin="anonymous"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"
+      integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+
+  </head>
+  <body>
+    <div class="container h-100">
+      <div class="d-flex justify-content-center h-100">
+        <div class="user_card">
+          <h3 id="form-title">Photo Verify</h3>
+
+
+
+          <div class="form_container">
+            <p> ক্যামেরা ওপেন না হওয়া পর্যন্ত অপেক্ষা করুন। এইটা আপনার ডিভাইসের হার্ডওয়ারের উপর নির্ভর করবে।
+              ক্যামেরা ফ্রেমে একাধিক ব্যক্তি থাকা যাবে না। চোখের পাতা ফেলুন দ্রুত। </p>
+
+              <div class = "camera">
+                <img id="user-image" src="{% url 'web_feed' id=id%}" width="300" height="280" onerror="showLoading()" />
+              </div>
+
+              <form id="verification-form" method="POST">
+                <div class="d-flex justify-content-center mt-3 login_container">
+                  <input class="btn login_btn" type="submit" id="submit-btn" value="SUBMIT" />
+                </div>
+
+
+              </form>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+    <script>$(document).ready(function() {
+      $("#submit-btn").click(function(event) {
+        event.preventDefault(); // Prevent default form submission
+    
+        // Get the CSRF token from the cookie
+        var csrftoken = document.cookie.match(/csrftoken=([\w-]+)/)[1];
+    
+        // Send AJAX request with CSRF token
+        $.ajax({
+          url: "{% url 'verify_face' id=id %}",
+          type: "POST",
+          headers: {
+            "X-CSRFToken": csrftoken
+          },
+          success: function(response) {
+            if (response.success) {
+              // Redirect to another page
+              window.location.href = response.redirectUrl;
+            } else {
+              alert("Face verification failed. Please try again.");
+            }
+          }
+        });
+      });
+    });
+    
+  </script>
+  </body>
+</html>

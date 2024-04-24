@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Candidates List</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"
+    />
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f7f7f7;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 50px;
+        font-size: 2.5em;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        animation: fadeInDown 1s ease;
+      }
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .candidates-list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        margin: -20px;
+      }
+      .candidate {
+        width: calc(50% - 40px);
+        margin: 20px;
+        background-color: #c9d9cb;
+        border-radius: 10px;
+        box-shadow: 0px 0px 16px 16px rgb(127 219 6 / 10%);
+        transition: transform 0.3s ease;
+      }
+      .candidate:hover {
+        transform: translateY(-5px);
+      }
+      .candidate-info {
+        position: relative;
+        padding: 20px 40px 20px 20px; /* Added padding-right for checkbox */
+        display: flex;
+        align-items: center;
+      }
+      .candidate-info img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin-right: 20px;
+        object-fit: cover;
+      }
+      .candidate-details {
+        flex-grow: 1;
+      }
+      .candidate-name {
+        font-size: 18px;
+        font-weight: bold;
+        color: #333333;
+        margin-bottom: 5px;
+      }
+      .ballot-no {
+        font-size: 16px;
+        color: #333333;
+        margin-bottom: 10px;
+      }
+      .checkbox {
+        position: absolute;
+        top: 50%;
+        right: 25px; /* Adjusted right position */
+        transform: translateY(-50%);
+        width: 25px; /* Increased checkbox width */
+        height: 25px; /* Increased checkbox height */
+        cursor: pointer;
+      }
+      .vote-button {
+        display: block;
+        margin: 20px auto;
+        padding: 10px 30px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+      }
+      .vote-button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Candidates</h1>
+      <form id="voteForm" method="post" action="{% url 'vote_count_1' id=id %}">
+        {% csrf_token %}
+        <div class="candidates-list">
+          {% for candidate in candidates %}
+          <div class="candidate">
+            <div class="candidate-info">
+              <img
+                src="{{ MEDIA_URL }}{{ candidate.photo }}"
+                alt="{{ candidate.name }}"
+              />
+              <div class="candidate-details">
+                <p class="ballot-no">Ballot No: {{ candidate.ballot_no }}</p>
+                <p class="candidate-name">{{ candidate.name }}</p>
+              </div>
+              <input
+                type="checkbox"
+                name="candidate_ids"
+                value="{{ candidate.id }}"
+                class="checkbox"
+              />
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <button type="button" class="vote-button" onclick="confirmVote()">Vote</button>
+      </form>
+    </div>
+  
+    <script>function confirmVote() {
+        // Get all checkboxes
+        var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        var selectedCandidates = [];
+    
+        // Iterate over checkboxes to find selected ones
+        checkboxes.forEach(function(checkbox) {
+            if (checkbox.checked) {
+                // Find the corresponding candidate name
+                var candidateName = checkbox.parentNode.querySelector('.candidate-name').textContent.trim();
+                selectedCandidates.push(candidateName);
+            }
+        });
+    
+        // Confirm if any candidates are selected
+        if (selectedCandidates.length > 0) {
+            var confirmationMessage = "Are you sure you want to vote for:\n\n" + selectedCandidates.join("\n");
+            if (confirm(confirmationMessage)) {
+                document.getElementById("voteForm").submit(); // Submit the form if confirmed
+            }
+        } else {
+            alert("Please select at least one candidate to vote."); // Alert if no candidates are selected
+        }
+    }
+    
+    </script>
+  </body>
+</html>
